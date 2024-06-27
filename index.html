@@ -29,7 +29,12 @@
     <label>Rows: </label>
     <input type="number" value=5 min=1 max=15 id="row" onchange="changeRow()">
     <label>Columns: </label>
-    <input type="number" value=5 min=1 max=15 id="col" onchange="changeCol()">
+    <input type="number" value=5 min=1 max=15 id="col" onchange="changeCol()"><br>
+    <button onclick="random_game()">scamble</button>
+    <label>Chance: </label>
+    <input type="number" value=30 min=0 max=100 id="chance-input">
+    <label>%</label>
+
     <script>
       const main_div = document.getElementById("main-div");
       const rowIn = document.getElementById("row");
@@ -50,20 +55,24 @@
         }
       }
 
-      function flip(e) {
-        let r=e.currentTarget.r;
-        let c=e.currentTarget.c;
+      function flip(r, c) {
         _flip(r, c);
         _flip(r, c+1);
         _flip(r, c-1);
         _flip(r+1, c);
         _flip(r-1, c);
       }
+      
+      function flip_event(e) {
+        let r=e.currentTarget.r;
+        let c=e.currentTarget.c;
+        flip(r,c);
+      }
 
       function mkDiv(r, c) {
         let rdiv = document.createElement('div');
         rdiv.className = "square";
-        rdiv.addEventListener("click", flip);
+        rdiv.addEventListener("click", flip_event);
         rdiv.r=r;
         rdiv.c=c;
         rdiv.on=false;
@@ -73,6 +82,15 @@
         return rdiv;
       }
       
+      function fill_blank() {
+        for (let r=0;r<row;r++){
+          for (let c=0;c<column;c++){
+            squares[r][c].style.backgroundColor = '#7f7f00';
+            squares[r][c].on=false;
+          }
+        }
+      }
+
       function changeRow() {
         if (Number(rowIn.value)>row){
           for (let r=row;r<Number(rowIn.value);r++){
@@ -93,6 +111,7 @@
           }
         }
         row = Number(rowIn.value);
+        fill_blank();
       }
       
       function changeCol() {
@@ -112,8 +131,19 @@
           }
         }
         column = Number(colIn.value);
+        fill_blank();
       }
       
+      function random_game() {
+        fill_blank();
+        let chance = document.getElementById("chance-input").value/100;
+        for (let r=0;r<row;r++){
+          for (let c=0;c<column;c++){
+            if (Math.random()<chance)flip(r,c);
+          }
+        }
+      }
+
       changeRow(5);
       changeCol(5);
     </script>
