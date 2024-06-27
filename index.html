@@ -1,79 +1,119 @@
+<!DOCTYPE html>
 <html>
   <head>
     <title>Light Off</title>
     <style>
       #main-div {
-        background: "#ffffff";
+        /* background: "#ffffff"; */
+        display: grid;
+        /* gap: 5px 5px; */
+        /* background-color: black; */
+        border-style: solid;
+        border-color: black;
+        border-width: 2px;
+        width: fit-content;
+        height: fit-content;
+      }
+
+      .square {
+        width: 40px;
+        height: 40px;
+        border-color: #000000;
+        border-width: 2px;
+        border-style: solid;;
       }
     </style>
   </head>
   <body>
     <div id="main-div"></div>
     <label>Rows: </label>
-    <input type="number" value=5 id="row" onchange="changeRow()">
+    <input type="number" value=5 min=1 max=15 id="row" onchange="changeRow()">
     <label>Columns: </label>
-    <input type="number" value=5 id="col" onchange="changeCol()">
+    <input type="number" value=5 min=1 max=15 id="col" onchange="changeCol()">
     <script>
-      var row=0;
-      var column=0;
-      var squares = [];
-      var row_div=[];
       const main_div = document.getElementById("main-div");
       const rowIn = document.getElementById("row");
       const colIn = document.getElementById("col");
+      var row=0;
+      var column=0;
+      var squares = [];
+
+      function _flip(r, c) {
+        if ((r<0)||(r>=row))return;
+        if ((c<0)||(c>=column))return;
+        if (squares[r][c].on){
+          squares[r][c].style.backgroundColor = '#7f7f00';
+          squares[r][c].on=false;
+        } else{
+          squares[r][c].style.backgroundColor = '#ffff9f';
+          squares[r][c].on = true;
+        }
+      }
+
+      function flip(e) {
+        let r=e.currentTarget.r;
+        let c=e.currentTarget.c;
+        _flip(r, c);
+        _flip(r, c+1);
+        _flip(r, c-1);
+        _flip(r+1, c);
+        _flip(r-1, c);
+      }
+
       function mkDiv(r, c) {
         let rdiv = document.createElement('div');
-        rdiv.onclick = "flip(r,c)";
-        rdiv.style.width="50px";
-        rdiv.style.height="50px";
-        rdiv.style.border="#000000";
-        rdiv.style.borderWidth="5px";
+        rdiv.className = "square";
+        rdiv.addEventListener("click", flip);
+        rdiv.r=r;
+        rdiv.c=c;
+        rdiv.on=false;
+        rdiv.style.gridRow = r+1;
+        rdiv.style.gridColumn = c+1;
+        rdiv.style.backgroundColor = '#7f7f00';
         return rdiv;
       }
+      
       function changeRow() {
         if (Number(rowIn.value)>row){
           for (let r=row;r<Number(rowIn.value);r++){
             let currow = [];
-            let currowdiv = document.createElement('div');
-            main_div.appendChild(currowdiv);
             for (let c=0;c<column;c++){
               let newdiv = mkDiv(r,c);
-              currowdiv.appendChild(newdiv);
+              main_div.appendChild(newdiv);
               currow.push(newdiv);
             }
             squares.push(currow);
-            row_div.push(currowdiv);
           }
         } else {
           for (let r=row-1; r>=Number(rowIn.value); r--) {
             let currow = squares.pop();
-            let currowdiv = row_div.pop();
             for (let c=0;c<column;c++){
-              currowdiv.removeChild(currow[c]);
+              main_div.removeChild(currow[c]);
             }
-            main_div.removeChild(currowdiv);
           }
         }
         row = Number(rowIn.value);
       }
+      
       function changeCol() {
         if (Number(colIn.value)>column){
           for (let c=column;c<Number(colIn.value);c++){
             for (let r=0;r<row;r++){
               let newdiv = mkDiv(r,c);
-              row_div[r].appendChild(newdiv);
+              main_div.appendChild(newdiv);
               squares[r].push(newdiv);
             }
           }
         } else {
           for (let c=column-1; c>=Number(colIn.value); c--) {
-            for (let r=0;c<row;r++){
-              row_div[r].removeChild(squares[r].pop());
+            for (let r=0;r<row;r++){
+              main_div.removeChild(squares[r].pop());
             }
           }
         }
-        row = Number(rowIn.value);
+        column = Number(colIn.value);
       }
+      
       changeRow(5);
       changeCol(5);
     </script>
