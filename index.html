@@ -18,7 +18,6 @@
       .square {
         width: 40px;
         height: 40px;
-        border-color: #000000;
         border-width: 2px;
         border-style: solid;;
       }
@@ -30,6 +29,7 @@
     <input type="number" value=5 min=1 max=15 id="row" onchange="changeRow()">
     <label>Columns: </label>
     <input type="number" value=5 min=1 max=15 id="col" onchange="changeCol()"><br>
+    <button onclick="toggle_clue()">toggle clue</button>
     <button onclick="fill_blank()">clear</button>
     <button onclick="random_game()">scramble</button>
     <label>Chance: </label>
@@ -43,6 +43,14 @@
       var row=0;
       var column=0;
       var squares = [];
+      var clue=false;
+      
+      const styleEl = document.createElement("style");
+      document.head.appendChild(styleEl);
+      const styleSheet = styleEl.sheet;
+      styleSheet.insertRule(".borderb { border-color: black; }", 0);
+      styleSheet.insertRule(".borderr { border-color: black; }", 1);
+
 
       function _flip(r, c) {
         if ((r<0)||(r>=row))return;
@@ -62,6 +70,14 @@
         _flip(r, c-1);
         _flip(r+1, c);
         _flip(r-1, c);
+        let cl = squares[r][c].classList;
+        if (cl.contains("borderr")){
+          cl.remove("borderr");
+          cl.add("borderb");
+        } else {
+          cl.remove("borderb");
+          cl.add("borderr");
+        }
       }
       
       function flip_event(e) {
@@ -88,6 +104,11 @@
           for (let c=0;c<column;c++){
             squares[r][c].style.backgroundColor = '#7f7f00';
             squares[r][c].on=false;
+            let cl = squares[r][c].classList;
+            if (cl.contains("borderr")){
+              cl.remove("borderr");
+              cl.add("borderb");
+            }
           }
         }
       }
@@ -142,6 +163,18 @@
           for (let c=0;c<column;c++){
             if (Math.random()<chance)flip(r,c);
           }
+        }
+      }
+
+      function toggle_clue(){
+        if (clue){
+          clue = false;
+          styleSheet.deleteRule(1);
+          styleSheet.insertRule(".borderr { border-color: black; }", 1);
+        } else {
+          clue = true;
+          styleSheet.deleteRule(1);
+          styleSheet.insertRule(".borderr { border-color: red; }", 1);
         }
       }
 
